@@ -7358,6 +7358,56 @@ public:
   }
 };
 
+class ELVMTargetInfo : public TargetInfo {
+public:
+  ELVMTargetInfo(const llvm::Triple &Triple, const TargetOptions &)
+      : TargetInfo(Triple) {
+    BoolWidth = BoolAlign = 32;
+    CharWidth = CharAlign = 32;
+    HalfWidth = HalfAlign = 32;
+    IntWidth = IntAlign = 32;
+    LongWidth = LongAlign = 32;
+    LongLongWidth = LongLongAlign = 32;
+    LongWidth = LongAlign = PointerWidth = PointerAlign = 32;
+    SizeType    = UnsignedLong;
+    PtrDiffType = UnsignedLong;
+    IntPtrType  = SignedLong;
+    IntMaxType  = SignedLong;
+    Int64Type   = SignedLong;
+    RegParmMax  = 0;
+    resetDataLayout("ELVM-e-m:e-p:32:32-i32:32-n32-S32");
+    MaxAtomicPromoteWidth = 32;
+    MaxAtomicInlineWidth = 32;
+    TLSSupported = false;
+  }
+  void getTargetDefines(const LangOptions &Opts,
+                        MacroBuilder &Builder) const override {
+    DefineStd(Builder, "elvm", Opts);
+    Builder.defineMacro("__eir__");
+  }
+  bool hasFeature(StringRef Feature) const override {
+    return Feature == "elvm";
+  }
+
+  ArrayRef<Builtin::Info> getTargetBuiltins() const override { return None; }
+  const char *getClobbers() const override {
+    return "";
+  }
+  BuiltinVaListKind getBuiltinVaListKind() const override {
+    return TargetInfo::VoidPtrBuiltinVaList;
+  }
+  ArrayRef<const char *> getGCCRegNames() const override {
+    return None;
+  }
+  bool validateAsmConstraint(const char *&Name,
+                             TargetInfo::ConstraintInfo &info) const override {
+    return true;
+  }
+  ArrayRef<TargetInfo::GCCRegAlias> getGCCRegAliases() const override {
+    return None;
+  }
+};
+
 class MipsTargetInfo : public TargetInfo {
   void setDataLayout() {
     StringRef Layout;
@@ -8510,6 +8560,9 @@ static TargetInfo *AllocateTarget(const llvm::Triple &Triple,
   case llvm::Triple::bpfeb:
   case llvm::Triple::bpfel:
     return new BPFTargetInfo(Triple, Opts);
+
+  case llvm::Triple::elvm:
+    return new ELVMTargetInfo(Triple, Opts);
 
   case llvm::Triple::msp430:
     return new MSP430TargetInfo(Triple, Opts);
