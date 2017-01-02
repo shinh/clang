@@ -1527,8 +1527,10 @@ public:
   static StringLiteral *CreateEmpty(const ASTContext &C, unsigned NumStrs);
 
   StringRef getString() const {
+#if 0
     assert(CharByteWidth==1
            && "This function is used in places that assume strings use char");
+#endif
     return StringRef(StrData.asChar, getByteLength());
   }
 
