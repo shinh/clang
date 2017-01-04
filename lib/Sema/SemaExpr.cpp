@@ -3106,6 +3106,19 @@ ExprResult Sema::BuildPredefinedExpr(SourceLocation Loc,
     auto Str = PredefinedExpr::ComputeName(IT, currentDecl);
     unsigned Length = Str.length();
 
+    if (llvm::IsELVM) {
+      llvm::APInt LengthI(32, Length * 4 + 4);
+      ResTy = Context.WideCharTy.withConst();
+      SmallString<512> RawChars;
+      RawChars.resize(Length * 4 + 4);
+      for (unsigned i = 0; i < Length; i++) {
+        *reinterpret_cast<uint32_t*>(&RawChars[i*4]) = Str[i];
+      }
+      ResTy = Context.getConstantArrayType(ResTy, LengthI, ArrayType::Normal,
+                                           /*IndexTypeQuals*/ 0);
+      SL = StringLiteral::Create(Context, RawChars, StringLiteral::Ascii,
+                                 /*Pascal*/ false, ResTy, Loc);
+    } else {
     llvm::APInt LengthI(32, Length + 1);
     if (IT == PredefinedExpr::LFunction) {
       ResTy = Context.WideCharTy.withConst();
@@ -3122,6 +3135,7 @@ ExprResult Sema::BuildPredefinedExpr(SourceLocation Loc,
                                            /*IndexTypeQuals*/ 0);
       SL = StringLiteral::Create(Context, Str, StringLiteral::Ascii,
                                  /*Pascal*/ false, ResTy, Loc);
+    }
     }
   }
 
@@ -3352,6 +3366,8 @@ ExprResult Sema::ActOnNumericConstant(const Token &Tok, Scope *UDLScope) {
       QualType StrTy = Context.getConstantArrayType(
           Context.CharTy.withConst(), llvm::APInt(32, Length + 1),
           ArrayType::Normal, 0);
+      // TODO
+      assert(!llvm::IsELVM);
       Expr *Lit = StringLiteral::Create(
           Context, StringRef(TokSpelling.data(), Length), StringLiteral::Ascii,
           /*Pascal*/false, StrTy, &TokLoc, 1);
