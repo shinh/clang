@@ -7370,7 +7370,7 @@ public:
     LongLongWidth = LongLongAlign = 32;
     LongWidth = LongAlign = PointerWidth = PointerAlign = 32;
     SizeType    = UnsignedLong;
-    PtrDiffType = UnsignedLong;
+    PtrDiffType = SignedLong;
     IntPtrType  = SignedLong;
     IntMaxType  = SignedLong;
     Int64Type   = SignedLong;
