@@ -693,6 +693,22 @@ NumericLiteralParser::NumericLiteralParser(StringRef TokSpelling,
     return;
   }
 
+  if (llvm::IsELVM) {
+    if (isFloatingLiteral()) {
+      for (const char* p = DigitsBegin;; p++) {
+        if (*p == '.' || *p == 'e' || *p == 'E') {
+          SuffixBegin = p;
+          break;
+        }
+      }
+      saw_period = false;
+      saw_exponent = false;
+      isFloat = false;
+      isHalf = false;
+      isImaginary = false;
+    }
+  }
+
   if (isImaginary) {
     PP.Diag(PP.AdvanceToTokenCharacter(TokLoc,
                                        ImaginarySuffixLoc - ThisTokBegin),
@@ -981,6 +997,7 @@ bool NumericLiteralParser::GetIntegerValue(llvm::APInt &Val) {
 
 llvm::APFloat::opStatus
 NumericLiteralParser::GetFloatValue(llvm::APFloat &Result) {
+  assert(!llvm::IsELVM);
   using llvm::APFloat;
 
   unsigned n = std::min(SuffixBegin - ThisTokBegin, ThisTokEnd - ThisTokBegin);

@@ -324,9 +324,9 @@ void TargetInfo::adjust(const LangOptions &Opts) {
     IntMaxType = SignedLongLong;
     Int64Type = SignedLong;
 
-    HalfFormat = &llvm::APFloat::IEEEhalf();
-    FloatFormat = &llvm::APFloat::IEEEsingle();
-    LongDoubleFormat = &llvm::APFloat::IEEEquad();
+    HalfFormat = &llvm::APFloat::Bogus();
+    FloatFormat = &llvm::APFloat::Bogus();
+    LongDoubleFormat = &llvm::APFloat::Bogus();
   }
 
   if (Opts.NewAlignOverride)

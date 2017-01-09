@@ -7374,6 +7374,15 @@ public:
     IntPtrType  = SignedLong;
     IntMaxType  = SignedLong;
     Int64Type   = SignedLong;
+    FloatWidth = 32;
+    FloatAlign = 32;
+    DoubleWidth = 32;
+    DoubleAlign = 32;
+    LongDoubleWidth = 32;
+    LongDoubleAlign = 32;
+    FloatFormat = &llvm::APFloat::IEEEsingle();
+    DoubleFormat = &llvm::APFloat::IEEEsingle();
+    LongDoubleFormat = &llvm::APFloat::IEEEsingle();
     RegParmMax  = 0;
     resetDataLayout("ELVM-e-m:e-p:32:32-i32:32-n32-S32");
     MaxAtomicPromoteWidth = 32;
